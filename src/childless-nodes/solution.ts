@@ -8,24 +8,26 @@ const isLeaf = (x: CNNode): boolean => {
 
 const isContainer = (x: CNNode): boolean => !isLeaf(x);
 
-const countOfChildrenWithData = (
+const hasChildrenWithData = (
   x: CNNode,
-  accumulator: number = 0
-): number => {
+  accumulator: boolean = false
+): boolean => {
   if (isLeaf(x)) {
-    return accumulator + 1;
+    return true;
   }
 
   if (isContainer(x) && (x as Container).children === []) {
-    return accumulator;
+    return false;
   }
 
-  return (x as Container).children.reduce<number>((acc, cur) => {
-    return countOfChildrenWithData(cur, acc);
+  return (x as Container).children.reduce<boolean>((acc, cur, _idx, arr) => {
+    if (true === acc) {
+      arr.slice(1); // to break out of a reduce early, mutate the underlying array it's using...
+      return acc;
+    }
+    return hasChildrenWithData(cur, acc);
   }, accumulator);
 };
-
-const hasChildrenWithData = (x: CNNode) => countOfChildrenWithData(x) > 0;
 
 const removeNodesWithoutData = (
   data: CNNode[],
